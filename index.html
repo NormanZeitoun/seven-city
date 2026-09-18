@@ -202,8 +202,9 @@ const CATS = {
 };
 const DEF = { face: 'ovale', skin: '#E7B48F', hair: 'court', hairColor: '#6A4630', brows: 'épais', eyes: 'amande', iris: '#6F8A4A', nose: 'moyen', mouth: 'sourire', lip: '#C8907E', beard: 'aucune', beardColor: null, glasses: 'aucune', extra: 'aucun', bg: '#9CC5F0', top: 't-shirt', topColor: '#7B46EF', bottom: 'jean', bottomColor: '#1B1A4A', shoes: 'baskets', shoesColor: '#FFFFFF' };
 
+function sanitize(P0) { const P = Object.assign({}, DEF, P0 || {}); Object.keys(CATS).forEach(k => { const c = CATS[k]; if (c.color) { if (typeof P[k] !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(P[k])) P[k] = DEF[k]; } else if (!c.vals.includes(P[k])) P[k] = DEF[k]; }); if (P.beardColor && !/^#[0-9a-fA-F]{6}$/.test(P.beardColor)) P.beardColor = null; return P; }
 function render(P0, opts = {}) {
-  const P = Object.assign({}, DEF, P0); const id = 'a' + Math.random().toString(36).slice(2, 7); HEAD = HEADS[P.face] || HEADS.ovale;
+  const P = sanitize(P0); const id = 'a' + Math.random().toString(36).slice(2, 7); HEAD = HEADS[P.face] || HEADS.ovale;
   const skin = P.skin, sl = shade(skin, .28), sd = shade(skin, -.22), sd2 = shade(skin, -.4);
   const hair = P.hairColor, hd = shade(hair, -.35), hl = shade(hair, .25);
   const beardC = P.beardColor || shade(hair, -.05), bd = shade(beardC, -.35), bl = shade(beardC, .3);
@@ -387,7 +388,7 @@ function renderBody(P, id, skin, sl, sd) {
   ${legsUnder}${isDress ? '' : bottom}${shoes}${top}${isDress ? `<path d="M152 760 L128 830 L176 834 L192 770Z" fill="url(#sk2${id})"/><path d="M248 760 L272 830 L224 834 L208 770Z" fill="url(#sk2${id})"/>` + shoes : ''}`;
 }
 
-function renderFull(P0, opts = {}) { const P = Object.assign({}, DEF, P0); const head = render(P, Object.assign({}, opts, { noBg: true, full: true })); const idm = head.match(/id="soft(a[a-z0-9]+)"/); const id = idm ? idm[1] : 'x'; const skin = P.skin, sl = shade(skin, .28), sd = shade(skin, -.22); const body = renderBody(P, id, skin, sl, sd);
+function renderFull(P0, opts = {}) { const P = sanitize(P0); const head = render(P, Object.assign({}, opts, { noBg: true, full: true })); const idm = head.match(/id="soft(a[a-z0-9]+)"/); const id = idm ? idm[1] : 'x'; const skin = P.skin, sl = shade(skin, .28), sd = shade(skin, -.22); const body = renderBody(P, id, skin, sl, sd);
   const bg1 = P.bg, bg2 = shade(P.bg, -.25);
   const inner = head.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
   return `<svg viewBox="0 0 400 880" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgf${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/></linearGradient></defs>${opts.noBg ? '' : `<rect width="400" height="880" fill="url(#bgf${id})"/>`}${body}${inner}</svg>`; }
@@ -395,7 +396,7 @@ const PRESETS = {
   homme: { face: 'carré', skin: '#E7B48F', hair: 'court', hairColor: '#3F2818', brows: 'épais', eyes: 'amande', iris: '#3B2314', nose: 'moyen', mouth: 'sourire', lip: '#C8907E', beard: 'fond de barbe', beardColor: '#3F2818', glasses: 'aucune', extra: 'aucun', top: 't-shirt', topColor: '#7B46EF', bottom: 'jean', bottomColor: '#1B1A4A', shoes: 'baskets', shoesColor: '#F4F4F8', bg: '#9CC5F0' },
   femme: { face: 'ovale', skin: '#F6D0B5', hair: 'mi-long', hairColor: '#8B5A2B', brows: 'fins', eyes: 'grands', iris: '#6F4E2A', nose: 'petit', mouth: 'sourire', lip: '#D26F6F', beard: 'aucune', beardColor: null, glasses: 'aucune', extra: 'boucles', top: 'polo Seven', topColor: '#F1EFFF', bottom: 'chino', bottomColor: '#D9C6A5', shoes: 'baskets', shoesColor: '#F4F4F8', bg: '#F6D3C0' },
 };
-return { render, renderFull, renderBody, CATS, DEF, PRESETS, SKINS, HAIRS, IRISES, LIPS, shade };
+return { render, renderFull, renderBody, sanitize, CATS, DEF, PRESETS, SKINS, HAIRS, IRISES, LIPS, shade };
 })();
 if (typeof module !== 'undefined') module.exports = AV2;
 
@@ -444,7 +445,7 @@ async function route(){$('#pendingBox').style.display='none';$('#s-auth .tabs').
  if(m.status!=='active'){show('s-auth');$('#loginForm').style.display='none';$('#signupForm').style.display='none';$('#s-auth .tabs').style.display='none';$('#authTitle').textContent='Merci '+m.prenom+' !';$('#pendingBox').style.display='block';
   $('#pendingBox').innerHTML=m.status==='disabled'?'<h3>Compte fermé</h3><p class="small">Ce compte a été fermé. Contactez l\'équipe Seven.</p>':'<h3>Compte en attente de validation</h3><p class="small">L\'équipe Seven vérifie que vous faites partie des effectifs. Revenez dès que vous êtes validé.</p>';
   $('#pendingBox').innerHTML+='<div class="row" style="margin-top:12px"><button class="btn sec" id="pbRefresh">Vérifier</button><button class="btn ghost" id="pbLogout">Se déconnecter</button></div>';$('#pbRefresh').onclick=route;$('#pbLogout').onclick=logout;return;}
- await loadCfg();if(!m.avatar){openEditor(true);return;}startGame(false);}
+ await loadCfg();if(!m.avatar||!m.avatar.face){openEditor(true);return;}startGame(false);}
 async function logout(){stopCity();await sb.auth.signOut();ME=null;BAL=0;setAuthMode('login');route();}
 $('#tabLogin').onclick=()=>setAuthMode('login');$('#tabSignup').onclick=()=>setAuthMode('signup');
 $('#btnLogin').onclick=async()=>{const e=$('#liEmail').value.trim().toLowerCase(),pw=$('#liPass').value;$('#liErr').textContent='';if(!e||!pw){$('#liErr').textContent='Email et mot de passe nécessaires.';return;}
@@ -1009,10 +1010,10 @@ function cityLoop(){if(!cityOn)return;const dt=Math.min(.1,clock.getDelta());wal
  barges.forEach(b=>{b.position.x+=b.userData.dir*b.userData.speed*dt;if(b.position.x>330)b.position.x=-330;if(b.position.x<-330)b.position.x=330;b.position.y=.7+Math.sin(walkT*1.3+b.position.x*.05)*.12;b.rotation.z=Math.sin(walkT*1.1+b.position.x*.03)*.02;});rivT.offset.x-=dt*.04;
  if(!cityLoop._t){cityLoop._t=true;setTimeout(()=>{cityLoop._t=false;if(cityOn){if(Math.floor(walkT)%60<2)applyDayNight();else updateLampVisibility(isNight());}},1000);}
  cam.tx+=(player.position.x-cam.tx)*0.04;cam.tz+=(player.position.z-cam.tz)*0.04;updateCam();renderer.render(scene,camera);cityAnim=requestAnimationFrame(cityLoop);}
-function startGame(first){const m=me();show('s-game');
+function startGame(first){const m=me();if(!m||!m.avatar||!m.avatar.face){openEditor(true);return;}show('s-game');try{
  if(!cityInit)initCity();else{ // rebuild player avatar if changed
   scene.remove(player);player=cityAvatar(m.avatar,false);player.position.set(0,0,30);scene.add(player);scene.remove(playerLabel);playerLabel=makeLabel(m.pseudo,0,8.6,30,true);scene.add(playerLabel);loadBots();}
- refreshTop();cityOn=true;resizeCity();clock.getDelta();applyDayNight();cityLoop();checkBirthdays();if(first)toast('Bienvenue à Seven City, '+m.pseudo+' !');}
+ refreshTop();cityOn=true;resizeCity();clock.getDelta();applyDayNight();cityLoop();checkBirthdays();}catch(e){console.error(e);toast('Erreur d\'affichage : '+e.message);}if(first)toast('Bienvenue à Seven City, '+m.pseudo+' !');}
 function pauseCity(){cityOn=false;if(cityAnim)cancelAnimationFrame(cityAnim);}
 function stopCity(){pauseCity();}
 function refreshTop(){const m=me();if(!m)return;$('#ptsPill').textContent=fmt(BAL)+' pts';$('#streakPill').textContent='🔥 '+(m.streak||0);$('#whoName').textContent=m.pseudo;if(m.avatar)avatarBadge($('#miniMe'),m.avatar);}
