@@ -438,8 +438,8 @@ async function refreshBal(){try{BAL=await rpc('my_balance');}catch(e){}refreshTo
 /* ===================== SCREENS ===================== */
 function show(id){$$('.screen').forEach(s=>s.classList.remove('on'));$('#'+id).classList.add('on');window.scrollTo(0,0);}
 function setAuthMode(m){$('#tabLogin').classList.toggle('on',m==='login');$('#tabSignup').classList.toggle('on',m==='signup');$('#loginForm').style.display=m==='login'?'block':'none';$('#signupForm').style.display=m==='signup'?'block':'none';}
-async function route(){$('#pendingBox').style.display='none';$('#s-auth .tabs').style.display='flex';$('#authTitle').textContent='Bienvenue dans Seven City';$('#adminLink').style.display=ISADMIN?'':'none';
- let m;try{m=await loadMe();}catch(e){toast(errMsg(e));show('s-auth');return;}
+async function route(){$('#pendingBox').style.display='none';$('#s-auth .tabs').style.display='flex';$('#authTitle').textContent='Bienvenue dans Seven City';
+ let m;try{m=await loadMe();}catch(e){toast(errMsg(e));show('s-auth');return;}$('#adminLink').style.display=ISADMIN?'':'none';
  if(!m){const {data:{session}}=await sb.auth.getSession();if(session){$('#pendingBox').style.display='block';$('#pendingBox').innerHTML='<h3>Profil incomplet</h3><p class="small">Votre compte existe mais le profil n\'a pas été créé. Déconnectez-vous et recréez le compte.</p><button class="btn ghost" id="pbLogout">Se déconnecter</button>';$('#pbLogout').onclick=logout;}
   show('s-auth');return;}
  if(m.status!=='active'){show('s-auth');$('#loginForm').style.display='none';$('#signupForm').style.display='none';$('#s-auth .tabs').style.display='none';$('#authTitle').textContent='Merci '+m.prenom+' !';$('#pendingBox').style.display='block';
