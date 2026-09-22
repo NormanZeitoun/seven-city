@@ -66,7 +66,7 @@ label{display:block;font-weight:700;font-size:14px;margin:12px 0 6px;color:var(-
 .sheetBody{padding:6px 18px 28px;overflow:auto;-webkit-overflow-scrolling:touch} .sheetBody>*+*{margin-top:12px}
 /* avatar editor screen */
 #s-avatar{padding:0;max-width:560px;height:100%;overflow:hidden}
-#avView{position:relative;flex:0 0 auto;height:40vh;height:40dvh;min-height:240px;background:linear-gradient(#DCE7FF,#C9D9FF);display:flex;align-items:center;justify-content:center;overflow:hidden} #avPreview{height:100%;width:100%;box-sizing:border-box;padding:56px 0 52px;display:flex;align-items:center;justify-content:center} #avPreview svg{height:100%;max-height:100%;width:auto;max-width:100%;display:block}
+#avView{position:relative;flex:0 0 auto;height:40vh;height:40dvh;min-height:240px;background:linear-gradient(#DCE7FF,#C9D9FF);display:flex;align-items:center;justify-content:center;overflow:hidden} #avPreview{height:100%;width:100%;box-sizing:border-box;padding:56px 0 52px;display:flex;align-items:center;justify-content:center} #avPreview svg{width:100%;height:100%;display:block}
 .avTop{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:6px;padding:10px 10px;pointer-events:none} .avTop img{height:26px;flex:0 0 auto} .avTop .t{font-weight:900;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 auto} .avTop .pill{margin-left:auto;flex:0 0 auto;white-space:nowrap}
 .presets{position:absolute;left:12px;bottom:12px;display:flex;gap:6px} .vbtns{position:absolute;right:12px;bottom:12px;display:flex;gap:6px}
 .presets button,.vbtns button{background:var(--card);color:var(--violet);border:0;font:800 12px Nunito,sans-serif;padding:8px 10px;border-radius:12px;box-shadow:0 4px 14px rgba(27,26,74,.12)} .avTop .pill{pointer-events:auto} #bSaveTop{pointer-events:auto;margin-left:4px;flex:0 0 auto;background:var(--violet);color:#fff;border:0;font:800 12px Nunito,sans-serif;padding:8px 12px;border-radius:12px} .vbtns button.on{background:var(--violet);color:#fff}
@@ -403,7 +403,7 @@ function renderFull(P0, opts = {}) { const P = sanitize(P0); const head = render
   return `<svg viewBox="0 0 400 880" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgf${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/></linearGradient></defs>${opts.noBg ? '' : `<rect width="400" height="880" fill="url(#bgf${id})"/>`}${body}${inner}</svg>`; }
 const PRESETS = {
   homme: { face: 'carré', skin: '#E7B48F', hair: 'court', hairColor: '#3F2818', brows: 'épais', eyes: 'amande', iris: '#3B2314', nose: 'moyen', mouth: 'sourire', lip: '#C8907E', beard: 'fond de barbe', beardColor: '#3F2818', glasses: 'aucune', extra: 'aucun', top: 't-shirt', topColor: '#7B46EF', bottom: 'jean', bottomColor: '#1B1A4A', shoes: 'baskets', shoesColor: '#F4F4F8', bg: '#9CC5F0' },
-  femme: { face: 'ovale', skin: '#F6D0B5', hair: 'mi-long', hairColor: '#8B5A2B', brows: 'fins', eyes: 'grands', iris: '#6F4E2A', nose: 'petit', mouth: 'sourire', lip: '#D26F6F', beard: 'aucune', beardColor: null, glasses: 'aucune', extra: 'boucles', top: 'polo Seven', topColor: '#F1EFFF', bottom: 'chino', bottomColor: '#D9C6A5', shoes: 'baskets', shoesColor: '#F4F4F8', bg: '#F6D3C0' },
+  femme: { face: 'ovale', skin: '#F6D0B5', hair: 'mi-long', hairColor: '#8B5A2B', brows: 'fins', eyes: 'grands', iris: '#6F4E2A', nose: 'petit', mouth: 'sourire', lip: '#D26F6F', beard: 'aucune', beardColor: null, glasses: 'aucune', extra: 'boucles', top: 'polo Seven', topColor: '#F1EFFF', bottom: 'chino', bottomColor: '#D9C6A5', shoes: 'baskets', shoesColor: '#F4F4F8', bg: '#9CC5F0' },
 };
 return { render, renderFull, renderBody, sanitize, CATS, DEF, PRESETS, SKINS, HAIRS, IRISES, LIPS, shade };
 })();
@@ -705,7 +705,7 @@ function initEditorUI() { if (edInit) return; edInit = true;
   $('#bSaveTop').onclick = () => $('#bSave').click();
   $('#bCancel').onclick = () => { startGame(false); }; }
 function setEdMode(m) { edMode = m; $('#vFace').classList.toggle('on', m === 'face'); $('#vBody').classList.toggle('on', m === 'body'); renderPreview(); }
-function renderPreview() { const svg = edMode === 'face' ? AV2.render(editP) : AV2.renderFull(editP); $('#avPreview').innerHTML = svg; }
+function renderPreview() { const svg = edMode === 'face' ? AV2.render(editP, { noBg: true }) : AV2.renderFull(editP, { noBg: true }); const el = $('#avPreview'); el.innerHTML = svg; const sv = el.querySelector('svg'); if (sv) { sv.setAttribute('width', '100%'); sv.setAttribute('height', '100%'); sv.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } }
 function renderCats() { $('#cats').innerHTML = CATS2.map(c => `<button class="${c.id === editCat ? 'on' : ''}" data-c="${c.id}">${c.n}</button>`).join(''); $$('#cats button').forEach(b => b.onclick = () => { editCat = b.dataset.c; renderCats(); renderEditorBody(); b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }); }
 const FACE_CATS = ['face', 'skin', 'hair', 'hairColor', 'brows', 'eyes', 'iris', 'nose', 'mouth', 'lip', 'beard', 'beardColor', 'glasses', 'extra'];
 function renderEditorBody() { const m = me(); m.unlocked = m.unlocked || []; $('#avatarPts').textContent = fmt(BAL) + ' pts'; const c = CATS2.find(x => x.id === editCat); let h = '';
